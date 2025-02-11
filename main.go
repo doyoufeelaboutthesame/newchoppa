@@ -5,6 +5,7 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 type requestBody struct {
@@ -44,6 +45,32 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func PatchHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	idstr := vars["id"]
+	id, _ := strconv.Atoi(idstr)
+	var recBody requestBody
+	err := json.NewDecoder(r.Body).Decode(&recBody)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		log.Println("Error decoding JSON:", err)
+		return
+	}
+	var task Task
+	DB.First(&task, id)
+	task.Task = recBody.Task
+	task.IsDone = recBody.IsDone
+	DB.Save(&task)
+	json.NewEncoder(w).Encode(task)
+}
+func DeleteHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	idstr := vars["id"]
+	id, _ := strconv.Atoi(idstr)
+	DB.Delete(&Task{}, id)
+	w.WriteHeader(http.StatusNotFound)
+}
+
 func main() {
 	InitDB()
 	err := DB.AutoMigrate(&Task{})
@@ -53,5 +80,8 @@ func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/", PostHandler).Methods("POST")
 	router.HandleFunc("/", GetHandler).Methods("GET")
+	router.HandleFunc("/{id}", PatchHandler).Methods("PATCH")
+	router.HandleFunc("/{id}", DeleteHandler).Methods("DELETE")
+
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
