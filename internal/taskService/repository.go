@@ -42,7 +42,7 @@ func (repo *taskRepository) UpdateTaskByID(id uint, task Task) (Task, error) {
 	if res.Error != nil {
 		return Task{}, res.Error
 	}
-	return task, nil
+	return oldTask, nil
 }
 func (repo *taskRepository) DeleteTaskByID(id uint) error {
 	res := repo.db.Delete(&Task{}, id)
