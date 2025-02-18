@@ -13,5 +13,7 @@ migrate-force:
 	migrate -database $(DB_DSN) -path migrations force 20250216082214
 lint:
 	golangci-lint run --out-format=colored-line-number
-gen:
+gen-tasks:
 	oapi-codegen -config openapi/.openapi -include-tags tasks -package tasks openapi/openapi.yaml > ./internal/web/tasks/api.gen.go
+gen-users:
+	oapi-codegen -config openapi/.openapi -include-tags users -package users openapi/openapi.yaml > ./internal/web/users/api.gen.go

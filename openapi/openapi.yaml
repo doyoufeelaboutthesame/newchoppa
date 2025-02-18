@@ -78,6 +78,77 @@ paths:
       responses:
         '204':
           description: Deleted successfully
+  /users:
+    get:
+      summary: Get all users
+      tags:
+        - users
+      responses:
+        '200':
+          description: A list of Users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    post:
+      summary: Make new User
+      tags:
+        - users
+      requestBody:
+        description: User to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: The created User
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /users/{id}:
+    patch:
+      summary: Update user by ID
+      tags:
+        - users
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: uint
+          required: true
+      requestBody:
+        description: New fields for User
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: The updated User
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    delete:
+      tags:
+        - users
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+          format: uint
+        required: true
+      responses:
+        '204':
+          description: Deleted successfully
 components:
   schemas:
     Task:
@@ -90,3 +161,13 @@ components:
           type: string
         is_done:
           type: boolean
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: uint
+        email:
+          type: string
+        password:
+          type: string

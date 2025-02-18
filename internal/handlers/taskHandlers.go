@@ -80,34 +80,3 @@ func (h *Handler) PatchTasksId(ctx context.Context, request tasks.PatchTasksIdRe
 	}
 	return response, nil
 }
-
-//func (h *Handler) PatchTaskHandler(w http.ResponseWriter, r *http.Request) {
-//	vars := mux.Vars(r)
-//	idstr := vars["id"]
-//	id, _ := strconv.Atoi(idstr)
-//	var task taskService.Task
-//	err := json.NewDecoder(r.Body).Decode(&task)
-//	if err != nil {
-//		http.Error(w, err.Error(), http.StatusBadRequest)
-//		return
-//	}
-//	updatedTask, err := h.Service.UpdateTaskByID(int64(id), task)
-//	if err != nil {
-//		http.Error(w, err.Error(), http.StatusInternalServerError)
-//	}
-//	w.Header().Set("Content-Type", "application/json")
-//	err = json.NewEncoder(w).Encode(updatedTask)
-//	if err != nil {
-//		http.Error(w, err.Error(), http.StatusInternalServerError)
-//	}
-//}
-//func (h *Handler) DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
-//	vars := mux.Vars(r)
-//	idstr := vars["id"]
-//	id, _ := strconv.Atoi(idstr)
-//	err := h.Service.DeleteTaskByID(int64(id))
-//	if err != nil {
-//		http.Error(w, err.Error(), http.StatusInternalServerError)
-//	}
-//	w.WriteHeader(http.StatusNoContent)
-//}
