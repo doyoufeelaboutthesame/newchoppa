@@ -14,6 +14,14 @@ import (
 	strictecho "github.com/oapi-codegen/runtime/strictmiddleware/echo"
 )
 
+// Task defines model for Task.
+type Task struct {
+	Id     *uint   `json:"id,omitempty"`
+	IsDone *bool   `json:"is_done,omitempty"`
+	Task   *string `json:"task,omitempty"`
+	UserId *uint   `json:"user_id,omitempty"`
+}
+
 // User defines model for User.
 type User struct {
 	Email    *string `json:"email,omitempty"`
@@ -29,6 +37,9 @@ type PatchUsersIdJSONRequestBody = User
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// Get tasks for User by ID
+	// (GET /tasksforuser/{id})
+	GetTasksforuserId(ctx echo.Context, id uint) error
 	// Get all users
 	// (GET /users)
 	GetUsers(ctx echo.Context) error
@@ -46,6 +57,22 @@ type ServerInterface interface {
 // ServerInterfaceWrapper converts echo contexts to parameters.
 type ServerInterfaceWrapper struct {
 	Handler ServerInterface
+}
+
+// GetTasksforuserId converts echo context to params.
+func (w *ServerInterfaceWrapper) GetTasksforuserId(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "id" -------------
+	var id uint
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetTasksforuserId(ctx, id)
+	return err
 }
 
 // GetUsers converts echo context to params.
@@ -126,11 +153,29 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
+	router.GET(baseURL+"/tasksforuser/:id", wrapper.GetTasksforuserId)
 	router.GET(baseURL+"/users", wrapper.GetUsers)
 	router.POST(baseURL+"/users", wrapper.PostUsers)
 	router.DELETE(baseURL+"/users/:id", wrapper.DeleteUsersId)
 	router.PATCH(baseURL+"/users/:id", wrapper.PatchUsersId)
 
+}
+
+type GetTasksforuserIdRequestObject struct {
+	Id uint `json:"id"`
+}
+
+type GetTasksforuserIdResponseObject interface {
+	VisitGetTasksforuserIdResponse(w http.ResponseWriter) error
+}
+
+type GetTasksforuserId200JSONResponse []Task
+
+func (response GetTasksforuserId200JSONResponse) VisitGetTasksforuserIdResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
 }
 
 type GetUsersRequestObject struct {
@@ -202,6 +247,9 @@ func (response PatchUsersId200JSONResponse) VisitPatchUsersIdResponse(w http.Res
 
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
+	// Get tasks for User by ID
+	// (GET /tasksforuser/{id})
+	GetTasksforuserId(ctx context.Context, request GetTasksforuserIdRequestObject) (GetTasksforuserIdResponseObject, error)
 	// Get all users
 	// (GET /users)
 	GetUsers(ctx context.Context, request GetUsersRequestObject) (GetUsersResponseObject, error)
@@ -226,6 +274,31 @@ func NewStrictHandler(ssi StrictServerInterface, middlewares []StrictMiddlewareF
 type strictHandler struct {
 	ssi         StrictServerInterface
 	middlewares []StrictMiddlewareFunc
+}
+
+// GetTasksforuserId operation middleware
+func (sh *strictHandler) GetTasksforuserId(ctx echo.Context, id uint) error {
+	var request GetTasksforuserIdRequestObject
+
+	request.Id = id
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GetTasksforuserId(ctx.Request().Context(), request.(GetTasksforuserIdRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetTasksforuserId")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(GetTasksforuserIdResponseObject); ok {
+		return validResponse.VisitGetTasksforuserIdResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
 }
 
 // GetUsers operation middleware

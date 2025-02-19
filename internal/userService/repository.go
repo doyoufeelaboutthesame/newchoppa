@@ -1,12 +1,16 @@
 package userService
 
-import "gorm.io/gorm"
+import (
+	"TheRealOne/internal/taskService"
+	"gorm.io/gorm"
+)
 
 type UserRepository interface {
 	CreateUser(user User) (User, error)
 	GetAllUsers() ([]User, error)
 	UpdateUserByID(id uint, user User) (User, error)
 	DeleteUserByID(id uint) error
+	GetTasksForUser(userID uint) ([]taskService.Task, error)
 }
 
 type userRepository struct {
@@ -46,4 +50,12 @@ func (repo *userRepository) UpdateUserByID(id uint, user User) (User, error) {
 		return oldUser, err
 	}
 	return oldUser, nil
+}
+func (repo *userRepository) GetTasksForUser(userID uint) ([]taskService.Task, error) {
+	var tasks []taskService.Task
+	err := repo.db.Find(&tasks, "user_id = ?", userID).Error
+	if err != nil {
+		return nil, err
+	}
+	return tasks, nil
 }

@@ -78,3 +78,19 @@ func (h *UserHandler) PatchUsersId(ctx context.Context, request users.PatchUsers
 	}
 	return response, nil
 }
+
+func (h *UserHandler) GetTasksforuserId(ctx context.Context, request users.GetTasksforuserIdRequestObject) (users.GetTasksforuserIdResponseObject, error) {
+	allTasks, err := h.Service.GetTasksForUser(request.Id)
+	if err != nil {
+		return nil, err
+	}
+	response := users.GetTasksforuserId200JSONResponse{}
+	for _, tsk := range allTasks {
+		task := users.Task{
+			Task:   &tsk.Task,
+			IsDone: &tsk.IsDone,
+		}
+		response = append(response, task)
+	}
+	return response, nil
+}
