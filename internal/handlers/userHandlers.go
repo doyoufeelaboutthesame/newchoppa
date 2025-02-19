@@ -79,12 +79,12 @@ func (h *UserHandler) PatchUsersId(ctx context.Context, request users.PatchUsers
 	return response, nil
 }
 
-func (h *UserHandler) GetTasksforuserId(ctx context.Context, request users.GetTasksforuserIdRequestObject) (users.GetTasksforuserIdResponseObject, error) {
-	allTasks, err := h.Service.GetTasksForUser(request.Id)
+func (h *UserHandler) GetUsersUserIdTasks(ctx context.Context, request users.GetUsersUserIdTasksRequestObject) (users.GetUsersUserIdTasksResponseObject, error) {
+	allTasks, err := h.Service.GetTasksForUser(request.UserId)
 	if err != nil {
 		return nil, err
 	}
-	response := users.GetTasksforuserId200JSONResponse{}
+	response := users.GetUsersUserIdTasks200JSONResponse{}
 	for _, tsk := range allTasks {
 		task := users.Task{
 			Task:   &tsk.Task,

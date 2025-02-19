@@ -38,6 +38,7 @@ func (repo *taskRepository) UpdateTaskByID(id uint, task Task) (Task, error) {
 	}
 	oldTask.Task = task.Task
 	oldTask.IsDone = task.IsDone
+	oldTask.UserID = task.UserID
 	res = repo.db.Save(&oldTask)
 	if res.Error != nil {
 		return Task{}, res.Error

@@ -38,14 +38,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Task'
-  /tasksforuser/{id}:
+  /users/{user_id}/tasks:
     get:
       summary: Get tasks for User by ID
       tags:
         - users
       parameters:
         - in: path
-          name: id
+          name: user_id
           schema:
             type: integer
             format: uint
