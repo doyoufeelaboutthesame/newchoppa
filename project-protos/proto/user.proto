@@ -1,0 +1,38 @@
+
+syntax = "proto3";
+package user;
+option go_package = "github.com/doyoufeelaboutthesame/project-protos/proto/user";
+
+// Сущность пользователь
+message User {
+uint32 id    = 1;
+string email = 2;
+}
+
+// Запрос на создание
+message CreateUserRequest {
+string email = 1;
+}
+message CreateUserResponse {
+User user = 1;
+}
+
+message GetUserRequest {
+uint32 id = 1;
+}
+message UpdateUserRequest {
+uint32 id = 1;
+string email = 2;
+}
+message DeleteUserRequest {
+uint32 id = 1;
+}
+
+message Empty {}
+
+service UserService {
+rpc CreateUser (CreateUserRequest) returns (CreateUserResponse);
+rpc GetUser    (GetUserRequest)    returns (User);
+rpc UpdateUser (UpdateUserRequest) returns (User);
+rpc DeleteUser (DeleteUserRequest) returns (Empty);
+}
